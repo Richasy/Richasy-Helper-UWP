@@ -13,11 +13,9 @@ namespace Richasy.Helper.UWP
         public AppHelper App;
         public IOHelper IO;
         public MD5Helper MD5;
+        public NotificationHelper Notification;
+        public WebHelper Web;
 
-        public Instance()
-        {
-
-        }
 
         public Instance(Options options)
         {
@@ -25,6 +23,8 @@ namespace Richasy.Helper.UWP
             App = new AppHelper(options);
             IO = new IOHelper();
             MD5 = new MD5Helper();
+            Notification = new NotificationHelper(options);
+            Web = new WebHelper();
         }
     }
 }
