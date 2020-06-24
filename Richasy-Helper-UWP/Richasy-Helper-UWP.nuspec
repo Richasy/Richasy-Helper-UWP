@@ -8,6 +8,7 @@
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
     <license type="expression">MIT</license>
     <projectUrl>https://github.com/Richasy/Richasy-Helper-UWP</projectUrl>
+    <iconUrl>https://i.loli.net/2020/06/24/lAiqgh3crzkSupw.png</iconUrl>
     <description>Richasy自用的UWP辅助工具包</description>
     <releaseNotes>基础构建</releaseNotes>
     <copyright>Copyright 2020</copyright>
