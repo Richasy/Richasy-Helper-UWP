@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<package >
+  <metadata>
+    <id>Richasy.Helper.UWP</id>
+    <version>1.0.0</version>
+    <authors>Richasy</authors>
+    <owners>Richasy</owners>
+    <requireLicenseAcceptance>false</requireLicenseAcceptance>
+    <license type="expression">MIT</license>
+    <projectUrl>https://github.com/Richasy/Richasy-Helper-UWP</projectUrl>
+    <description>Richasy自用的UWP辅助工具包</description>
+    <releaseNotes>基础构建</releaseNotes>
+    <copyright>Copyright 2020</copyright>
+    <tags>Richasy uwp helper</tags>
+  </metadata>
+</package>
