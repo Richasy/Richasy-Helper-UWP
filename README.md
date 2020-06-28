@@ -6,6 +6,8 @@
 
 ## 使用
 
+> nuget: [Richasy.Helper.UWP](https://www.nuget.org/packages/Richasy.Helper.UWP)
+
 ### 配置项
 
 工具使用`Options`类作为初始化的配置项进行注入，配置项内包含一些简单的自定义选项：
