@@ -6,6 +6,7 @@ using System.Runtime.InteropServices.ComTypes;
 using System.Text;
 using System.Threading.Tasks;
 using Windows.ApplicationModel.Core;
+using Windows.ApplicationModel.Resources;
 using Windows.Storage;
 using Windows.UI;
 using Windows.UI.ViewManagement;
@@ -21,6 +22,7 @@ namespace Richasy.Helper.UWP
         {
             _options = options;
         }
+
         /// <summary>
         /// 写入本地设置
         /// </summary>
@@ -32,6 +34,7 @@ namespace Richasy.Helper.UWP
             var localcontainer = localSetting.CreateContainer(_options.SettingContainerName, ApplicationDataCreateDisposition.Always);
             localcontainer.Values[key.ToString()] = value;
         }
+
         /// <summary>
         /// 读取本地设置
         /// </summary>
@@ -53,6 +56,7 @@ namespace Richasy.Helper.UWP
                 return defaultValue;
             }
         }
+
         /// <summary>
         /// 获取布尔值的设置
         /// </summary>
@@ -63,6 +67,7 @@ namespace Richasy.Helper.UWP
         {
             return Convert.ToBoolean(GetLocalSetting(key, defaultValue.ToString()));
         }
+
         /// <summary>
         /// 日期转Unix时间戳(秒)
         /// </summary>
@@ -74,6 +79,7 @@ namespace Richasy.Helper.UWP
             int seconds = Convert.ToInt32(ts.TotalSeconds);
             return seconds;
         }
+
         /// <summary>
         /// Unix时间戳(秒)转日期
         /// </summary>
@@ -83,6 +89,7 @@ namespace Richasy.Helper.UWP
             var date = new DateTime(1970, 1, 1, 0, 0, 0, 0).AddSeconds(seconds);
             return date.ToLocalTime();
         }
+
         /// <summary>
         /// Unix时间戳(秒)转日期
         /// </summary>
@@ -100,6 +107,7 @@ namespace Richasy.Helper.UWP
             }
 
         }
+
         /// <summary>
         /// 获取当前时间戳（秒）
         /// </summary>
@@ -108,6 +116,7 @@ namespace Richasy.Helper.UWP
         {
             return DateToTimeStamp(DateTime.Now);
         }
+
         /// <summary>
         /// 获取当前时间戳（毫秒）
         /// </summary>
@@ -118,6 +127,7 @@ namespace Richasy.Helper.UWP
             long seconds = Convert.ToInt64(ts.TotalMilliseconds);
             return seconds;
         }
+
         /// <summary>
         /// 初始化标题栏
         /// </summary>
@@ -170,32 +180,58 @@ namespace Richasy.Helper.UWP
                 view.TitleBar.ButtonInactiveForegroundColor = Colors.Gray;
             }
         }
+
         /// <summary>
         /// 获取预先定义的线性画笔资源
         /// </summary>
         /// <param name="key">键</param>
         /// <returns></returns>
-        public Brush GetThemeBrush(Enum key)
+        public Brush GetThemeBrushFromResource(Enum key)
         {
             return (Brush)Application.Current.Resources[key.ToString()];
         }
+
         /// <summary>
         /// 获取预先定义的字体资源
         /// </summary>
         /// <param name="key">键</param>
         /// <returns></returns>
-        public FontFamily GetFontFamily(string key)
+        public FontFamily GetFontFamilyFromResource(Enum key)
         {
-            return (FontFamily)Application.Current.Resources[key];
+            return (FontFamily)Application.Current.Resources[key.ToString()];
         }
+
         /// <summary>
         /// 获取预先定义的样式
         /// </summary>
         /// <param name="key">键</param>
         /// <returns></returns>
-        public Style GetStyle(string key)
+        public Style GetStyleFromResource(Enum key)
         {
-            return (Style)Application.Current.Resources[key];
+            return (Style)Application.Current.Resources[key.ToString()];
+        }
+
+        /// <summary>
+        /// 根据语言选项选择对应语言的语句（会添加配置中定义的前缀）
+        /// </summary>
+        /// <param name="name">键值</param>
+        /// <returns></returns>
+        public string GetLocalizationTextFromResource(Enum key)
+        {
+            var loader = ResourceLoader.GetForCurrentView();
+            var language = loader.GetString(_options.LocalizationStringPrefix + key.ToString());
+            return language;
+        }
+        /// <summary>
+        /// 根据语言选项选择对应语言的语句（名称自定，不加前缀）
+        /// </summary>
+        /// <param name="name">键值</param>
+        /// <returns></returns>
+        public string GetLocalizationTextFromResource(string key)
+        {
+            var loader = ResourceLoader.GetForCurrentView();
+            var language = loader.GetString(key);
+            return language;
         }
     }
 }

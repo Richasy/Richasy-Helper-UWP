@@ -12,21 +12,24 @@ namespace Richasy.Helper.UWP
         {
             _options = options;
         }
-        public void SendToast(List<NotificationItem> items, string overflowText, int maxNum = 2, string groupName = "", string tagName = "", string attribute = "", ToastActivationType activeType = ToastActivationType.Foreground)
+        public void ShowToast(List<NotificationItem> items, string overflowText = "", int maxNum = 2, string groupName = "")
         {
             int index = 0;
             foreach (var item in items)
             {
                 if (index >= maxNum)
                 {
-                    var overflow = GetOverflowToast(overflowText);
-                    ShowToast(overflow, tagName, groupName);
+                    if (!string.IsNullOrEmpty(overflowText))
+                    {
+                        var overflow = GetOverflowToast(overflowText);
+                        ShowToast(overflow, "", groupName);
+                    }
                     break;
                 }
                 var content = new ToastContent
                 {
                     Launch = item.Args,
-                    ActivationType = activeType,
+                    ActivationType = item.ActiveType,
                     Visual = new ToastVisual()
                     {
                         BindingGeneric = new ToastBindingGeneric()
@@ -54,7 +57,7 @@ namespace Richasy.Helper.UWP
                             },
                             Attribution = new ToastGenericAttributionText()
                             {
-                                Text = attribute
+                                Text = item.AttributeText
                             }
                         },
                     }
@@ -68,7 +71,25 @@ namespace Richasy.Helper.UWP
                     };
                 }
                 index++;
-                ShowToast(content, tagName, groupName);
+                ShowToast(content, item.Tag, groupName);
+            }
+        }
+        public void ShowToast(List<ToastContent> items, string overflowText = "", int maxNum = 2, string groupName = "")
+        {
+            int index = 0;
+            foreach (var item in items)
+            {
+                if (index >= maxNum)
+                {
+                    if (!string.IsNullOrEmpty(overflowText))
+                    {
+                        var overflow = GetOverflowToast(overflowText);
+                        ShowToast(overflow, "", groupName);
+                    }
+                    break;
+                }
+                index++;
+                ShowToast(item, "", groupName);
             }
         }
         public ToastContent GetOverflowToast(string title, string appIcon = "")

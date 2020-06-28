@@ -13,7 +13,7 @@ namespace Richasy.Helper.UWP
     public class IOHelper
     {
         /// <summary>
-        /// 打开本地文件
+        /// 打开单个本地文件
         /// </summary>
         /// <param name="types">后缀名列表(如.jpg,.mp3等)</param>
         /// <returns>单个文件</returns>
@@ -33,22 +33,43 @@ namespace Richasy.Helper.UWP
             return file;
         }
         /// <summary>
+        /// 打开多个本地文件
+        /// </summary>
+        /// <param name="types">后缀名列表(如.jpg,.mp3等)</param>
+        /// <returns>多个文件</returns>
+        public async Task<List<StorageFile>> OpenLocalFilesAsync(params string[] types)
+        {
+            var picker = new FileOpenPicker();
+            picker.SuggestedStartLocation = PickerLocationId.DocumentsLibrary;
+            Regex typeReg = new Regex(@"^\.[a-zA-Z0-9]+$");
+            foreach (var type in types)
+            {
+                if (type == "*" || typeReg.IsMatch(type))
+                    picker.FileTypeFilter.Add(type);
+                else
+                    throw new InvalidCastException("文件后缀名不正确");
+            }
+            var file = await picker.PickMultipleFilesAsync();
+            return file.ToList();
+        }
+        /// <summary>
         /// 获取保存的文件
         /// </summary>
-        /// <param name="type">文件后缀名</param>
+        /// <param name="type">文件后缀名，如<c>.png</c></param>
         /// <param name="name">文件名</param>
-        /// <param name="adviceFileName">建议文件名</param>
+        /// <param name="fileTypeName">文件后缀说明文本</param>
         /// <returns></returns>
-        public async Task<StorageFile> GetSaveFileAsync(string type, string name, string adviceFileName)
+        public async Task<StorageFile> GetSaveFileAsync(string type, string name, string fileTypeName)
         {
             var save = new FileSavePicker();
             save.DefaultFileExtension = type;
             save.SuggestedFileName = name;
             save.SuggestedStartLocation = PickerLocationId.PicturesLibrary;
-            save.FileTypeChoices.Add(adviceFileName, new List<string>() { type });
+            save.FileTypeChoices.Add(fileTypeName, new List<string>() { type });
             var file = await save.PickSaveFileAsync();
             return file;
         }
+
         /// <summary>
         /// 获取本地存储的数据并进行转化
         /// </summary>

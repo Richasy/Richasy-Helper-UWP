@@ -91,8 +91,10 @@ namespace Richasy.Helper.UWP
         /// </summary>
         /// <param name="url">地址</param>
         /// <param name="content">数据</param>
+        /// <param name="format">数据上传格式</param>
+        /// <param name="headers">自定义请求头</param>
         /// <returns></returns>
-        public static async Task<string> PostContentToWebAsync(string url, string content, Dictionary<string, string> headers = null)
+        public static async Task<string> PostContentToWebAsync(string url, string content, Dictionary<string, string> headers = null, string format= "application/json")
         {
             HttpBaseProtocolFilter filter = new HttpBaseProtocolFilter();
             filter.IgnorableServerCertificateErrors.Add(ChainValidationResult.Expired);
@@ -106,7 +108,7 @@ namespace Richasy.Helper.UWP
                         client.DefaultRequestHeaders.Add(kv.Key, kv.Value);
                     }
                 }
-                var response = await client.PostAsync(new Uri(url), new HttpStringContent(content, Windows.Storage.Streams.UnicodeEncoding.Utf8, "application/x-www-form-urlencoded"));
+                var response = await client.PostAsync(new Uri(url), new HttpStringContent(content, Windows.Storage.Streams.UnicodeEncoding.Utf8, format));
                 if (response.IsSuccessStatusCode)
                 {
                     return await response.Content.ReadAsStringAsync();

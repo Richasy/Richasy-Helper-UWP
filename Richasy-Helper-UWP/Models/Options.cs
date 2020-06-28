@@ -15,5 +15,6 @@ namespace Richasy.Helper.UWP.Models
         public Color DarkButtonPressColor { get; set; }
         public Color LightButtonHoverColor { get; set; }
         public Color LightButtonPressColor { get; set; }
+        public string LocalizationStringPrefix { get; set; }
     }
 }
