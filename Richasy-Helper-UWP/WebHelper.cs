@@ -20,7 +20,7 @@ namespace Richasy.Helper.UWP
         /// <param name="url">地址</param>
         /// <param name="headers">请求头</param>
         /// <returns></returns>
-        public static async Task<string> GetTextFromWebAsync(string url,Dictionary<string,string> headers=null)
+        public async Task<string> GetTextFromWebAsync(string url,Dictionary<string,string> headers=null)
         {
             HttpBaseProtocolFilter filter = new HttpBaseProtocolFilter();
             filter.IgnorableServerCertificateErrors.Add(ChainValidationResult.Expired);
@@ -69,7 +69,7 @@ namespace Richasy.Helper.UWP
         /// <param name="url">地址</param>
         /// <param name="headers">请求头</param>
         /// <returns></returns>
-        public static async Task<T> GetEntityFromWebAsync<T>(string url, Dictionary<string, string> headers = null) where T: class
+        public async Task<T> GetEntityFromWebAsync<T>(string url, Dictionary<string, string> headers = null) where T: class
         {
             string response = await GetTextFromWebAsync(url, headers);
             if (!string.IsNullOrEmpty(response))
@@ -94,7 +94,7 @@ namespace Richasy.Helper.UWP
         /// <param name="format">数据上传格式</param>
         /// <param name="headers">自定义请求头</param>
         /// <returns></returns>
-        public static async Task<string> PostContentToWebAsync(string url, string content, Dictionary<string, string> headers = null, string format= "application/json")
+        public async Task<string> PostContentToWebAsync(string url, string content, Dictionary<string, string> headers = null, string format= "application/json")
         {
             HttpBaseProtocolFilter filter = new HttpBaseProtocolFilter();
             filter.IgnorableServerCertificateErrors.Add(ChainValidationResult.Expired);
