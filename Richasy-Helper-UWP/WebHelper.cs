@@ -119,5 +119,26 @@ namespace Richasy.Helper.UWP
                 }
             }
         }
+        /// <summary>
+        /// URL组合
+        /// </summary>
+        /// <param name="url">基础URL</param>
+        /// <param name="param">查询参数</param>
+        /// <returns></returns>
+        public string UrlCombine(string url, Dictionary<string, string> param)
+        {
+            string p = "";
+            if (param != null)
+            {
+                foreach (var item in param)
+                {
+                    p = $"{item.Key}={item.Value}&";
+                }
+            }
+            p = p.TrimEnd('&');
+            if (!string.IsNullOrEmpty(p))
+                return url + $"?{p}";
+            return url;
+        }
     }
 }
