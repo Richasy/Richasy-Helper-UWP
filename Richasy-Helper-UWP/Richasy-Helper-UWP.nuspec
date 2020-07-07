@@ -2,7 +2,7 @@
 <package >
   <metadata>
     <id>Richasy.Helper.UWP</id>
-    <version>1.0.2</version>
+    <version>1.0.3</version>
     <authors>Richasy</authors>
     <owners>Richasy</owners>
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
@@ -14,4 +14,9 @@
     <copyright>Copyright 2020</copyright>
     <tags>Richasy uwp helper</tags>
   </metadata>
+  <files>
+    <file src="bin\Release\Richasy-Helper-UWP.dll" target="lib\uap10.0"/>
+    <file src="bin\Release\Richasy-Helper-UWP.pdb" target="lib\uap10.0"/>
+    <file src="bin\Release\Richasy-Helper-UWP.pri" target="lib\uap10.0"/>
+  </files>
 </package>

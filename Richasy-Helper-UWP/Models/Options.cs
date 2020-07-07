@@ -16,5 +16,18 @@ namespace Richasy.Helper.UWP.Models
         public Color LightButtonHoverColor { get; set; }
         public Color LightButtonPressColor { get; set; }
         public string LocalizationStringPrefix { get; set; }
+        public Options()
+        {
+            DarkButtonHoverColor = Color.FromArgb(255, 33, 42, 67);
+            DarkButtonPressColor = Color.FromArgb(255, 255, 86, 86);
+            LightButtonHoverColor = Color.FromArgb(255, 63, 63, 63);
+            LightButtonPressColor = Color.FromArgb(255, 63, 63, 63);
+            LocalizationStringPrefix = "Tip_";
+        }
+        public Options(string settingContainerName, string defaultLogoPath = null):this()
+        {
+            SettingContainerName = settingContainerName;
+            DefaultNotificationLogoPath = defaultLogoPath;
+        }
     }
 }

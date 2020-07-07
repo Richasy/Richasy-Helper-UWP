@@ -21,16 +21,30 @@ namespace Richasy.Helper.UWP
 
         private List<Tuple<Guid, Action<Size>>> WindowSizeChangedNotify { get; set; } = new List<Tuple<Guid, Action<Size>>>();
 
-        public Instance(Options options)
+        public Instance()
         {
-            _options = options;
-            App = new AppHelper(options);
+            _options = new Options();
+            App = new AppHelper(_options);
             IO = new IOHelper();
             MD5 = new MD5Helper();
-            Notification = new NotificationHelper(options);
+            Notification = new NotificationHelper(_options);
             Web = new WebHelper();
 
             Window.Current.SizeChanged += WindowSizeChangedHandle;
+        }
+
+        public Instance(Options options) : this()
+        {
+            _options = options;
+            App = new AppHelper(options);
+            Notification = new NotificationHelper(options);
+        }
+
+        public Instance(string settingContainerName) : this()
+        {
+            _options = new Options(settingContainerName);
+            App = new AppHelper(_options);
+            Notification = new NotificationHelper(_options);
         }
 
         public void WindowSizeChangedHandle(object sender, WindowSizeChangedEventArgs e)
