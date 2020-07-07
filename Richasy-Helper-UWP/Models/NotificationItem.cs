@@ -12,6 +12,9 @@ namespace Richasy.Helper.UWP.Models
         public string Title { get; set; }
         public string Description { get; set; }
         public string HeroImage { get; set; }
+        /// <summary>
+        /// 启动参数
+        /// </summary>
         public string Args { get; set; }
         public string Logo { get; set; }
         public string Tag { get; set; }
@@ -21,15 +24,15 @@ namespace Richasy.Helper.UWP.Models
         {
 
         }
-        public NotificationItem(string t, string d, string img, string arg, string l, string tag = "", string a = "", ToastActivationType actType = ToastActivationType.Background)
+        public NotificationItem(string title, string description="", string heroImage="", string args="", string logo="", string tag = "", string attribute = "", ToastActivationType actType = ToastActivationType.Background)
         {
-            Title = t;
-            Description = d;
-            HeroImage = img;
-            Args = arg;
-            Logo = l;
+            Title = title;
+            Description = description;
+            HeroImage = heroImage;
+            Args = args;
+            Logo = logo;
             Tag = tag;
-            AttributeText = a;
+            AttributeText = attribute;
             ActiveType = actType;
         }
     }

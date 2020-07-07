@@ -12,30 +12,18 @@ namespace Richasy.Helper.UWP
         {
             _options = options;
         }
-        public void ShowToast(List<NotificationItem> items, string overflowText = "", int maxNum = 2, string groupName = "")
+        public ToastContent GetToastContent(NotificationItem item)
         {
-            int index = 0;
-            foreach (var item in items)
+            var content = new ToastContent
             {
-                if (index >= maxNum)
+                Launch = item.Args,
+                ActivationType = item.ActiveType,
+                Visual = new ToastVisual()
                 {
-                    if (!string.IsNullOrEmpty(overflowText))
+                    BindingGeneric = new ToastBindingGeneric()
                     {
-                        var overflow = GetOverflowToast(overflowText);
-                        ShowToast(overflow, "", groupName);
-                    }
-                    break;
-                }
-                var content = new ToastContent
-                {
-                    Launch = item.Args,
-                    ActivationType = item.ActiveType,
-                    Visual = new ToastVisual()
-                    {
-                        BindingGeneric = new ToastBindingGeneric()
-                        {
 
-                            Children =
+                        Children =
                             {
                                 new AdaptiveText()
                                 {
@@ -50,26 +38,48 @@ namespace Richasy.Helper.UWP
                                     HintStyle=AdaptiveTextStyle.Default
                                 },
                             },
-                            AppLogoOverride = new ToastGenericAppLogo()
-                            {
-                                Source = item.Logo,
-                                HintCrop = ToastGenericAppLogoCrop.Circle
-                            },
-                            Attribution = new ToastGenericAttributionText()
-                            {
-                                Text = item.AttributeText
-                            }
+                        AppLogoOverride = new ToastGenericAppLogo()
+                        {
+                            Source = item.Logo,
+                            HintCrop = ToastGenericAppLogoCrop.Circle
                         },
-                    }
-                };
-                if (!string.IsNullOrEmpty(item.HeroImage))
-                {
-                    content.Visual.BindingGeneric.HeroImage = new ToastGenericHeroImage()
-                    {
-                        Source = item.HeroImage,
-                        AlternateText = item.Title
-                    };
+                        Attribution = new ToastGenericAttributionText()
+                        {
+                            Text = item.AttributeText
+                        }
+                    },
                 }
+            };
+            if (!string.IsNullOrEmpty(item.HeroImage))
+            {
+                content.Visual.BindingGeneric.HeroImage = new ToastGenericHeroImage()
+                {
+                    Source = item.HeroImage,
+                    AlternateText = item.Title
+                };
+            }
+            return content;
+        }
+        public void ShowToast(NotificationItem item, string tag = null, string groupName = "")
+        {
+            var content = GetToastContent(item);
+            ShowToast(content, tag, groupName);
+        }
+        public void ShowToast(List<NotificationItem> items, string overflowText = "", int maxNum = 2, string groupName = "")
+        {
+            int index = 0;
+            foreach (var item in items)
+            {
+                if (index >= maxNum)
+                {
+                    if (!string.IsNullOrEmpty(overflowText))
+                    {
+                        var overflow = GetOverflowToast(overflowText);
+                        ShowToast(overflow, "", groupName);
+                    }
+                    break;
+                }
+                var content = GetToastContent(item);
                 index++;
                 ShowToast(content, item.Tag, groupName);
             }
@@ -120,12 +130,12 @@ namespace Richasy.Helper.UWP
             };
             return content;
         }
-        public void ShowToast(ToastContent content, string tag = null, string group = "")
+        public void ShowToast(ToastContent content, string tag = null, string groupName = "")
         {
             var notifier = ToastNotificationManager.CreateToastNotifier();
             var notification = new ToastNotification(content.GetXml());
-            if (!string.IsNullOrEmpty(group))
-                notification.Group = group;
+            if (!string.IsNullOrEmpty(groupName))
+                notification.Group = groupName;
             if (!string.IsNullOrEmpty(tag))
                 notification.Tag = tag;
             notifier.Show(notification);
