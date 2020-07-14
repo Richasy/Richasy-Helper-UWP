@@ -4,11 +4,11 @@ using Richasy.Helper.UWP.Models;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net;
+using System.Net.Http;
 using System.Text;
 using System.Threading.Tasks;
 using Windows.Security.Cryptography.Certificates;
-using Windows.Web.Http;
-using Windows.Web.Http.Filters;
 
 namespace Richasy.Helper.UWP
 {
@@ -22,12 +22,8 @@ namespace Richasy.Helper.UWP
         /// <returns></returns>
         public async Task<string> GetTextFromWebAsync(string url,Dictionary<string,string> headers=null)
         {
-            HttpBaseProtocolFilter filter = new HttpBaseProtocolFilter();
-            filter.IgnorableServerCertificateErrors.Add(ChainValidationResult.Expired);
-            filter.AllowAutoRedirect = false;
-            var client = new HttpClient(filter);
+            var client = new HttpClient();
             using (client)
-            using (filter)
             {
                 try
                 {
@@ -52,7 +48,7 @@ namespace Richasy.Helper.UWP
                     }
                     else
                     {
-                        throw new System.Net.Http.HttpRequestException(response.StatusCode.ToString());
+                        throw new HttpRequestException(response.StatusCode.ToString());
                     }
                 }
                 catch (Exception ex)
@@ -96,9 +92,7 @@ namespace Richasy.Helper.UWP
         /// <returns></returns>
         public async Task<string> PostContentToWebAsync(string url, string content, Dictionary<string, string> headers = null, string format= "application/json")
         {
-            HttpBaseProtocolFilter filter = new HttpBaseProtocolFilter();
-            filter.IgnorableServerCertificateErrors.Add(ChainValidationResult.Expired);
-            var client = new HttpClient(filter);
+            var client = new HttpClient();
             using (client)
             {
                 if (headers != null)
@@ -108,14 +102,14 @@ namespace Richasy.Helper.UWP
                         client.DefaultRequestHeaders.Add(kv.Key, kv.Value);
                     }
                 }
-                var response = await client.PostAsync(new Uri(url), new HttpStringContent(content, Windows.Storage.Streams.UnicodeEncoding.Utf8, format));
+                var response = await client.PostAsync(new Uri(url), new StringContent(content, Encoding.UTF8, format));
                 if (response.IsSuccessStatusCode)
                 {
                     return await response.Content.ReadAsStringAsync();
                 }
                 else
                 {
-                    throw new System.Net.Http.HttpRequestException(response.StatusCode.ToString());
+                    throw new HttpRequestException(response.StatusCode.ToString());
                 }
             }
         }
