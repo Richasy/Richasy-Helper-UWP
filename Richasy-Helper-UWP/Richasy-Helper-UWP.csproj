@@ -131,6 +131,7 @@
     <Compile Include="Models\NotificationItem.cs" />
     <Compile Include="Models\Options.cs" />
     <Compile Include="Models\RedirectException.cs" />
+    <Compile Include="NetHelper.cs" />
     <Compile Include="NotificationHelper.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="WebHelper.cs" />

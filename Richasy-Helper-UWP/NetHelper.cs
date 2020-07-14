@@ -1,18 +1,15 @@
 ﻿using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
 using Richasy.Helper.UWP.Models;
 using System;
 using System.Collections.Generic;
-using System.Linq;
-using Windows.Web.Http;
-using Windows.Web.Http.Filters;
+using System.Net;
+using System.Net.Http;
 using System.Text;
 using System.Threading.Tasks;
-using Windows.Security.Cryptography.Certificates;
 
 namespace Richasy.Helper.UWP
 {
-    public class WebHelper
+    public class NetHelper
     {
         /// <summary>
         /// 从网络获取文本
@@ -20,12 +17,9 @@ namespace Richasy.Helper.UWP
         /// <param name="url">地址</param>
         /// <param name="headers">请求头</param>
         /// <returns></returns>
-        public async Task<string> GetTextFromWebAsync(string url,Dictionary<string,string> headers=null)
+        public async Task<string> GetTextFromWebAsync(string url, Dictionary<string, string> headers = null)
         {
-            HttpBaseProtocolFilter filter = new HttpBaseProtocolFilter();
-            filter.IgnorableServerCertificateErrors.Add(ChainValidationResult.Expired);
-            filter.AllowAutoRedirect = false;
-            var client = new HttpClient(filter);
+            var client = new HttpClient();
             using (client)
             {
                 try
@@ -51,7 +45,7 @@ namespace Richasy.Helper.UWP
                     }
                     else
                     {
-                        throw new System.Net.Http.HttpRequestException(response.StatusCode.ToString());
+                        throw new HttpRequestException(response.StatusCode.ToString());
                     }
                 }
                 catch (Exception ex)
@@ -60,7 +54,7 @@ namespace Richasy.Helper.UWP
                 }
             }
         }
-        
+
         /// <summary>
         /// 获取网络数据并转化为对应的类型
         /// </summary>
@@ -68,7 +62,7 @@ namespace Richasy.Helper.UWP
         /// <param name="url">地址</param>
         /// <param name="headers">请求头</param>
         /// <returns></returns>
-        public async Task<T> GetEntityFromWebAsync<T>(string url, Dictionary<string, string> headers = null) where T: class
+        public async Task<T> GetEntityFromWebAsync<T>(string url, Dictionary<string, string> headers = null) where T : class
         {
             string response = await GetTextFromWebAsync(url, headers);
             if (!string.IsNullOrEmpty(response))
@@ -93,11 +87,9 @@ namespace Richasy.Helper.UWP
         /// <param name="format">数据上传格式</param>
         /// <param name="headers">自定义请求头</param>
         /// <returns></returns>
-        public async Task<string> PostContentToWebAsync(string url, string content, Dictionary<string, string> headers = null, string format= "application/json")
+        public async Task<string> PostContentToWebAsync(string url, string content, Dictionary<string, string> headers = null, string format = "application/json")
         {
-            HttpBaseProtocolFilter filter = new HttpBaseProtocolFilter();
-            filter.IgnorableServerCertificateErrors.Add(ChainValidationResult.Expired);
-            var client = new HttpClient(filter);
+            var client = new HttpClient();
             using (client)
             {
                 if (headers != null)
@@ -107,37 +99,16 @@ namespace Richasy.Helper.UWP
                         client.DefaultRequestHeaders.Add(kv.Key, kv.Value);
                     }
                 }
-                var response = await client.PostAsync(new Uri(url), new HttpStringContent(content, Windows.Storage.Streams.UnicodeEncoding.Utf8, format));
+                var response = await client.PostAsync(new Uri(url), new StringContent(content, Encoding.UTF8, format));
                 if (response.IsSuccessStatusCode)
                 {
                     return await response.Content.ReadAsStringAsync();
                 }
                 else
                 {
-                    throw new System.Net.Http.HttpRequestException(response.StatusCode.ToString());
+                    throw new HttpRequestException(response.StatusCode.ToString());
                 }
             }
-        }
-        /// <summary>
-        /// URL组合
-        /// </summary>
-        /// <param name="url">基础URL</param>
-        /// <param name="param">查询参数</param>
-        /// <returns></returns>
-        public string UrlCombine(string url, Dictionary<string, string> param)
-        {
-            string p = "";
-            if (param != null)
-            {
-                foreach (var item in param)
-                {
-                    p = $"{item.Key}={item.Value}&";
-                }
-            }
-            p = p.TrimEnd('&');
-            if (!string.IsNullOrEmpty(p))
-                return url + $"?{p}";
-            return url;
         }
     }
 }

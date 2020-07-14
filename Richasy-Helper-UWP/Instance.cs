@@ -18,6 +18,7 @@ namespace Richasy.Helper.UWP
         public MD5Helper MD5;
         public NotificationHelper Notification;
         public WebHelper Web;
+        public NetHelper Net;
 
         private List<Tuple<Guid, Action<Size>>> WindowSizeChangedNotify { get; set; } = new List<Tuple<Guid, Action<Size>>>();
 
@@ -29,6 +30,7 @@ namespace Richasy.Helper.UWP
             MD5 = new MD5Helper();
             Notification = new NotificationHelper(_options);
             Web = new WebHelper();
+            Net = new NetHelper();
 
             Window.Current.SizeChanged += WindowSizeChangedHandle;
         }
