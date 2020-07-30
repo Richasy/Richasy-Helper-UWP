@@ -32,7 +32,11 @@ namespace Richasy.Helper.UWP
             Web = new WebHelper();
             Net = new NetHelper();
 
-            Window.Current.SizeChanged += WindowSizeChangedHandle;
+            try
+            {
+                Window.Current.SizeChanged += WindowSizeChangedHandle;
+            }
+            catch (Exception){}
         }
 
         public Instance(Options options) : this()

@@ -40,8 +40,7 @@ namespace Richasy.Helper.UWP
                             },
                         AppLogoOverride = new ToastGenericAppLogo()
                         {
-                            Source = item.Logo,
-                            HintCrop = ToastGenericAppLogoCrop.Circle
+                            Source = item.Logo
                         },
                         Attribution = new ToastGenericAttributionText()
                         {
