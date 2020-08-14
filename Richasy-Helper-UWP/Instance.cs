@@ -15,7 +15,6 @@ namespace Richasy.Helper.UWP
         private Options _options;
         public AppHelper App;
         public IOHelper IO;
-        public MD5Helper MD5;
         public NotificationHelper Notification;
         public WebHelper Web;
         public NetHelper Net;
@@ -27,7 +26,6 @@ namespace Richasy.Helper.UWP
             _options = new Options();
             App = new AppHelper(_options);
             IO = new IOHelper();
-            MD5 = new MD5Helper();
             Notification = new NotificationHelper(_options);
             Web = new WebHelper();
             Net = new NetHelper();
