@@ -1,10 +1,12 @@
 ﻿using Microsoft.Graph;
+using Microsoft.Graph.Auth;
 using Microsoft.Identity.Client;
 using Microsoft.QueryStringDotNET;
 using Newtonsoft.Json;
 using Richasy.Helper.UWP.Models;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Net;
 using System.Net.Http;
@@ -16,102 +18,179 @@ namespace Richasy.Helper.UWP
 {
     public class OneDriveHelper
     {
-        private string _baseUrl = "https://graph.microsoft.com/v1.0";
-        private string _token = "";
-        public HttpClient _httpClient;
-        public User User { get; internal set; }
+        private string _clientId = "";
+        private string[] _scopes;
+        private const string _baseUrl = "https://graph.microsoft.com/v1.0";
+        private IPublicClientApplication _clientApp;
+        private GraphServiceClient _graphClient;
+        private HttpClient _httpClient;
 
-        public OneDriveHelper(string token, HttpClient client = null)
+        private const string API_AppRoot = _baseUrl + "/me/drive/special/approot";
+        private const string API_Items = _baseUrl + "/me/drive/items";
+
+        public OneDriveHelper(string clientId, string[] scopes)
         {
-            _token = token;
-            if (client == null)
-            {
-                HttpClientHandler handler = new HttpClientHandler()
-                {
-                    AutomaticDecompression = DecompressionMethods.GZip | DecompressionMethods.Deflate
-                };
-                client = new HttpClient(handler);
-                client.DefaultRequestHeaders.Connection.Add("keep-alive");
-            }
-            SetHttpClient(client);
-        }
-        public void SetHttpClient(HttpClient client)
-        {
-            _httpClient = client;
-            if (!string.IsNullOrEmpty(_token))
-            {
-                _httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", _token);
-            }
-        }
-        public async Task<OneDriveTokenResponse> AuthorizeAsync(string _clientId, string _clientSecret, string _redirectUrl, string[] _scopes)
-        {
-            string scope = string.Join(' ', _scopes);
-            var startUri = new Uri($"https://login.microsoftonline.com/common/oauth2/v2.0/authorize?client_id={_clientId}&redirect_uri={WebUtility.UrlEncode(_redirectUrl)}&response_type=code&scope={WebUtility.UrlEncode(scope)}");
-            var webAuthenticationResult =
-                        await Windows.Security.Authentication.Web.WebAuthenticationBroker.AuthenticateAsync(
-                        Windows.Security.Authentication.Web.WebAuthenticationOptions.None,
-                        startUri,
-                        new Uri(_redirectUrl));
-            OneDriveTokenResponse result = null;
-            switch (webAuthenticationResult.ResponseStatus)
-            {
-                case Windows.Security.Authentication.Web.WebAuthenticationStatus.Success:
-                    string data = webAuthenticationResult.ResponseData.ToString();
-                    var parseUri = new Uri(data);
-                    if (parseUri.Query.Contains("code"))
-                    {
-                        var query = QueryString.Parse(parseUri.Query.TrimStart('?'));
-                        string code = query["code"];
-                        var nvc = new Dictionary<string, string>();
-                        nvc.Add("code", code);
-                        nvc.Add("client_id", _clientId);
-                        nvc.Add("client_secret", _clientSecret);
-                        nvc.Add("redirect_uri", _redirectUrl);
-                        nvc.Add("grant_type", "authorization_code");
-                        var content = new FormUrlEncodedContent(nvc);
-                        var response = await _httpClient.PostAsync("https://login.microsoftonline.com/common/oauth2/v2.0/token", content);
-                        if (response.IsSuccessStatusCode)
-                        {
-                            var tokenResponse = await response.Content.ReadAsStringAsync();
-                            var tokenModel = JsonConvert.DeserializeObject<OneDriveTokenResponse>(tokenResponse);
-                            _token = tokenModel.access_token;
-                            _httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", tokenModel.access_token);
-                            result = tokenModel;
-                        }
-                    }
-                    break;
-                default:
-                    break;
-            }
-            return result;
+            _clientId = clientId;
+            _scopes = scopes;
+            _clientApp = PublicClientApplicationBuilder.Create(_clientId)
+                .WithRedirectUri("https://login.microsoftonline.com/common/oauth2/nativeclient")
+             .Build();
+            DeviceCodeProvider authProvider = new DeviceCodeProvider(_clientApp, _scopes);
+            _graphClient = new GraphServiceClient(authProvider);
+            _httpClient = new HttpClient();
         }
 
-        public async Task<OneDriveTokenResponse> RefreshTokenAsync(string _clientId, string _clientSecret, string _redirectUrl, string refreshToken)
+        public OneDriveHelper(string clientId, string[] scopes, string token) : this(clientId, scopes)
         {
-            OneDriveTokenResponse result = null;
+            _httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
+        }
+
+        /// <summary>
+        /// 预热链接
+        /// </summary>
+        /// <returns></returns>
+        public async Task WarmUpAsync()
+        {
             try
             {
-                var nvc = new Dictionary<string, string>();
-                nvc.Add("refresh_token", refreshToken);
-                nvc.Add("client_id", _clientId);
-                nvc.Add("client_secret", _clientSecret);
-                nvc.Add("redirect_uri", _redirectUrl);
-                nvc.Add("grant_type", "refresh_token");
-                var content = new FormUrlEncodedContent(nvc);
-                var response = await _httpClient.PostAsync("https://login.microsoftonline.com/common/oauth2/v2.0/token", content);
-                if (response.IsSuccessStatusCode)
+                await _httpClient.SendAsync(new HttpRequestMessage
                 {
-                    var temp = await response.Content.ReadAsStringAsync();
-                    var data = JsonConvert.DeserializeObject<OneDriveTokenResponse>(temp);
-                    _httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", data.access_token);
-                    result = data;
-                }
+                    Method = new HttpMethod("HEAD"),
+                    RequestUri = new Uri(_baseUrl)
+                });
+            }
+            catch (Exception) { }
+        }
+
+        /// <summary>
+        /// 授权
+        /// </summary>
+        /// <returns></returns>
+        public async Task<AuthenticationResult> AuthorizationAsync()
+        {
+            var accounts = await _clientApp.GetAccountsAsync();
+            var response = await _clientApp.AcquireTokenInteractive(_scopes)
+                    .WithAccount(accounts.FirstOrDefault())
+                    .WithPrompt(Microsoft.Identity.Client.Prompt.SelectAccount)
+                    .ExecuteAsync();
+            if (response != null)
+                _httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", response.AccessToken);
+            return response;
+        }
+
+        /// <summary>
+        /// 刷新令牌
+        /// </summary>
+        /// <returns></returns>
+        public async Task<AuthenticationResult> RefreshTokenAsync()
+        {
+            var accounts = await _clientApp.GetAccountsAsync();
+            var firstAccount = accounts.FirstOrDefault();
+            AuthenticationResult authResult = null;
+            try
+            {
+                authResult = await _clientApp.AcquireTokenSilent(_scopes, firstAccount)
+                .ExecuteAsync();
+                if (authResult != null)
+                    _httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", authResult.AccessToken);
+                return authResult;
+            }
+            catch (MsalUiRequiredException)
+            {
+                return await AuthorizationAsync();
+            }
+        }
+
+        /// <summary>
+        /// 检查文件是否存在
+        /// </summary>
+        /// <param name="path"></param>
+        /// <returns></returns>
+        public async Task<bool> IsFileExistAsync(string path)
+        {
+            try
+            {
+                var item = await _graphClient.Me.Drive.Special.AppRoot.ItemWithPath(path).Request().GetAsync();
             }
             catch (Exception)
             {
-                return null;
+                return false;
+            }
+            return true;
+        }
+
+        /// <summary>
+        /// 创建文件
+        /// </summary>
+        /// <param name="path">文件路径（应用文件夹下）</param>
+        /// <param name="content">内容</param>
+        /// <returns></returns>
+        public async Task CreateFileAsync(string path, string content)
+        {
+            await PutRequestAsync<DriveItem>(API_AppRoot + $":/{path}:/content", content, "text/plain");
+        }
+
+        /// <summary>
+        /// 更新文件
+        /// </summary>
+        /// <param name="id">文件ID</param>
+        /// <param name="content">内容</param>
+        /// <returns></returns>
+        public async Task UpdateFileAsync(string id, string content)
+        {
+            await PutRequestAsync<DriveItem>(API_Items + $"/{id}/content", content);
+        }
+
+        /// <summary>
+        /// 根据路径获取文件ID
+        /// </summary>
+        /// <param name="path">路径</param>
+        /// <returns></returns>
+        public async Task<string> GetFileIdFromPathAsync(string path)
+        {
+            var item = await _graphClient.Me.Drive.Special.AppRoot.ItemWithPath(path).Request().GetAsync();
+            return item.Id;
+        }
+
+        /// <summary>
+        /// 根据路径获取文件内容
+        /// </summary>
+        /// <param name="path">路径</param>
+        /// <returns></returns>
+        public async Task<string> GetFileContentAsync(string path)
+        {
+            string result = null;
+            var stream = await _graphClient.Me.Drive.Special.AppRoot.ItemWithPath(path).Content.Request().GetAsync();
+            if (stream != null)
+            {
+                using (stream)
+                {
+                    var reader = new StreamReader(stream);
+                    result = await reader.ReadToEndAsync();
+                }
             }
             return result;
+        }
+
+        /// <summary>
+        /// 获取个人资料
+        /// </summary>
+        /// <returns></returns>
+        public async Task<User> GetMeAsync()
+        {
+            var profile = await _graphClient.Me.Request().GetAsync();
+            return profile;
+        }
+
+        private async Task<T> PutRequestAsync<T>(string path, string content, string format = "application/json") where T : class
+        {
+            var response = await _httpClient.PutAsync(path, new StringContent(content, Encoding.UTF8, format));
+            if (response.IsSuccessStatusCode)
+            {
+                string re = await response.Content.ReadAsStringAsync();
+                return JsonConvert.DeserializeObject<T>(re);
+            }
+            return null;
         }
     }
 }

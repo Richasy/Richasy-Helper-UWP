@@ -2,7 +2,7 @@
 <package >
   <metadata>
     <id>Richasy.Helper.UWP</id>
-    <version>1.0.8</version>
+    <version>1.0.9</version>
     <authors>Richasy</authors>
     <owners>Richasy</owners>
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
@@ -10,12 +10,23 @@
     <projectUrl>https://github.com/Richasy/Richasy-Helper-UWP</projectUrl>
     <iconUrl>https://i.loli.net/2020/06/24/lAiqgh3crzkSupw.png</iconUrl>
     <description>Richasy自用的UWP辅助工具包</description>
-    <releaseNotes>处理Instance初始化时的代理问题</releaseNotes>
+    <releaseNotes>添加OneDrive的一些处理方法</releaseNotes>
     <copyright>Copyright 2020</copyright>
     <tags>Richasy uwp helper</tags>
+    <dependencies>
+      <group targetFramework="uap10.0.17134">
+        <dependency id="Microsoft.Graph" version="3.19.0" />
+        <dependency id="Microsoft.Graph.Auth" version="1.0.0-preview.5" />
+        <dependency id="Microsoft.Identity.Client" version="4.22.0" />
+        <dependency id="Microsoft.Toolkit.Uwp.Notifications" version="6.1.1" />
+        <dependency id="Newtonsoft.Json" version="12.0.3" />
+        <dependency id="Microsoft.NETCore.UniversalWindowsPlatform" version="6.2.10" />
+        <dependency id="QueryString.NET" version="1.0.0" />
+      </group>
+    </dependencies>
   </metadata>
   <files>
-    <file src="bin\Release\Richasy-Helper-UWP.dll" target="lib\uap10.0"/>
-    <file src="bin\Release\Richasy-Helper-UWP.pri" target="lib\uap10.0"/>
+    <file src="bin\Release\Richasy-Helper-UWP.dll" target="lib\uap10.0.17134"/>
+    <file src="bin\Release\Richasy-Helper-UWP.pri" target="lib\uap10.0.17134"/>
   </files>
 </package>
