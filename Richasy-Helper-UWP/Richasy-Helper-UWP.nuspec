@@ -2,7 +2,7 @@
 <package >
   <metadata>
     <id>Richasy.Helper.UWP</id>
-    <version>1.0.9</version>
+    <version>1.1.0</version>
     <authors>Richasy</authors>
     <owners>Richasy</owners>
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
@@ -10,7 +10,7 @@
     <projectUrl>https://github.com/Richasy/Richasy-Helper-UWP</projectUrl>
     <iconUrl>https://i.loli.net/2020/06/24/lAiqgh3crzkSupw.png</iconUrl>
     <description>Richasy自用的UWP辅助工具包</description>
-    <releaseNotes>添加OneDrive的一些处理方法</releaseNotes>
+    <releaseNotes>添加iCiBa翻译工具</releaseNotes>
     <copyright>Copyright 2020</copyright>
     <tags>Richasy uwp helper</tags>
     <dependencies>
